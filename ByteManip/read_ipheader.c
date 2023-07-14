@@ -72,7 +72,26 @@ char *format_ip(unsigned int ip_int) {
 
 int is_checksum_valid(char *hdr) {
     /* TODO: if checksum valid, return 1; else return 0; */
+    int i = 0;
+    unsigned sum = 0;
+    unsigned *pnum = (unsigned *)hdr;
+    while (i++ < 5) {
+        unsigned num = *pnum;
+        num = num << 24 | num >> 24 | ((num >> 16) << 24 ) >> 16 | ((num << 16) >> 24) << 16; 
+        unsigned first = num >> 16;
+        unsigned second = num & 0x0000ffff;
+        sum += (first + second);
+        printf("i = %x, first = %x, second = %x, sum = %x\n", i, first, second, sum);
+        pnum++;
+    }
+
+    unsigned carry = sum >> 16;
+    sum = (sum << 16) >> 16;
+    sum += carry;
     
+    sum += 0xffff0000;
+    
+    return ~sum == 0;
 }
 
 int get_protocol(char *hdr) {
